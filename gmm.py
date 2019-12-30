@@ -13,8 +13,16 @@ def iter_plot(cen_lst, cov_lst, itr):
 
 seed(1)
 mc = [0.4, 0.4, 0.2]  # Mixing coefficients
-centroids = [array([0, 0]), array([3, 3]), array([0, 4])]
-ccov = [array([[1, 0.4], [0.4, 1]]), diag((1, 2)), diag((0.4, 0.1))]
+centroids = [
+    array([0, 0]),
+    array([3, 3]),
+    array([0, 4])
+]
+ccov = [
+    array([[1, 0.4], [0.4, 1]]),
+    diag((1, 2)),
+    diag((0.4, 0.1))
+]
 
 # Generate samples from the gaussian mixture model
 X = gmm.sample_gaussian_mixture(centroids, ccov, mc, samples=1000)
@@ -22,18 +30,17 @@ fig1 = figure()
 plot(X[:, 0], X[:, 1], '.')
 
 # Expectation-Maximization of Mixture of Gaussians
-cen_lst, cov_lst, p_k, logL = gmm.em_gm(X, K=3, iter=400, \
-                                        verbose=True, iter_call=iter_plot)
-print
-"Log likelihood (how well the data fits the model) = ", logL
+cen_lst, cov_lst, p_k, logL = gmm.em_gm(X, K=3, max_iter=400, verbose=True, iter_call=iter_plot)
+print("Log likelihood (how well the data fits the model) = ", logL)
 
 # Plot the cluster ellipses
 for i in range(len(cen_lst)):
     x1, x2 = gmm.gauss_ellipse_2d(cen_lst[i], cov_lst[i])
     plot(x1, x2, 'k', linewidth=2)
-title("");
-xlabel(r'$x_1$');
+title("")
+xlabel(r'$x_1$')
 ylabel(r'$x_2$')
+savefig("1.png")
 
 # Now we will find the conditional distribution of x given y
 fig2 = figure()
@@ -48,8 +55,7 @@ for i in range(len(cen_lst)):
     ex, ey = gmm.gauss_ellipse_2d(cen_lst[i], cov_lst[i])
     plot(ex, ey, 'k', linewidth=0.5)
 ax2 = twinx()
-(con_cen, con_cov, new_p_k) = gmm.cond_dist(np.array([np.nan, y]), \
-                                            cen_lst, cov_lst, p_k)
+(con_cen, con_cov, new_p_k) = gmm.cond_dist(np.array([np.nan, y]),cen_lst, cov_lst, p_k)
 x2plt = gmm.gmm_pdf(c_[x1plt], con_cen, con_cov, new_p_k)
 ax2.plot(x1plt, x2plt, 'r', linewidth=2,
          label='Cond. dist. of $x_1$ given $x_2=' + str(y) + '$')
@@ -57,3 +63,4 @@ ax2.legend()
 ax1.set_xlabel(r'$x_1$')
 ax1.set_ylabel(r'$x_2$')
 ax2.set_ylabel('Probability')
+savefig("2.png")
